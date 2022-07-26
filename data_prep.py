@@ -57,12 +57,9 @@ imputer = SimpleImputer(missing_values=np.nan, strategy='median')
 imputer = imputer.fit(dataset)
 dataset.iloc[:,:] = imputer.transform(dataset)
 
-# print(dataset)
-
 # Assign X as a DataFrame of features and y as a Series of the targets
 X = dataset.drop('income', 1)
 y = dataset.income
 
 # Split training/test set after the data is completely cleaned up
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-print(X_train)
