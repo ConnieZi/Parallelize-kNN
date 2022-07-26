@@ -1,13 +1,10 @@
 import data_prep as dp
 import numpy as np
+import time
 from math import sqrt
 from collections import defaultdict
 
 # convert all the dataset into ndarrays
-dataset = dp.dataset
-X = dp.X.to_numpy(dtype ='int64')
-y = dp.y.to_numpy(dtype ='int64')
-
 X_train_list = dp.X_train.to_numpy(dtype ='int64')
 X_test_list = dp.X_test.to_numpy(dtype ='int64')
 y_train_list = dp.y_train.to_numpy(dtype ='int64')
@@ -53,7 +50,7 @@ class kNN():
             return:
             the class for this test point
         '''
-        train_labels = np.empty()
+        train_labels = []
         for dist_idx in indices:
             train_labels.append(y_train_list[dist_idx])
 
@@ -78,7 +75,10 @@ class kNN():
         accuracy /= len(y_test_list)
         return accuracy
 
+start_time = time.time()
 clf = kNN(k=3)
 predictions = clf.predict(X_test_list)
 accuracy = clf.get_accuracy(predictions, y_test_list)
+end_time = time.time()
 print('Test Accuracy : {:.3}'.format(accuracy))
+print ("Time elapsed:", end_time - start_time)
