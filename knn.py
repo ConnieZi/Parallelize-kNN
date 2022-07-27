@@ -22,11 +22,14 @@ class kNN():
     def predict(self, X_test_list):
         # calculate the distances
         predictions = []
+        # for every test point in 9767 of test_list
         for test in X_test_list:
             # a distances array for every test point
             distances = []
+            # for every train point in the train list of about 39073
             for train in X_train_list:
                 squared_dist = 0
+                # for each attribute in 14 attributes
                 for attr_idx in range(X_train_list.shape[1]):
                     squared_dist += np.square(test[attr_idx]-train[attr_idx])
                 dist = sqrt(squared_dist)
@@ -76,7 +79,7 @@ class kNN():
         return accuracy
 
 start_time = time.time()
-clf = kNN(k=3)
+clf = kNN(k=24)
 predictions = clf.predict(X_test_list)
 accuracy = clf.get_accuracy(predictions, y_test_list)
 end_time = time.time()
