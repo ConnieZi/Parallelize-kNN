@@ -4,12 +4,51 @@ import time
 from math import sqrt
 from collections import defaultdict
 
+import pycuda.driver as cuda
+import pycuda.autoinit
+import pycuda.gpuarray as gpuarray
+from pycuda.compiler import SourceModule
+
 # convert all the dataset into ndarrays
 X_train_list = dp.X_train.to_numpy()
 X_test_list = dp.X_test.to_numpy()
 y_train_list = dp.y_train.to_numpy()
 y_test_list = dp.y_test.to_numpy()
 
+attribute_number = X_train_list.shape[1]
+
+def euclidean_distances(train, test):
+    '''
+        train: a train vector as an ndarray
+        test: a test vector as an ndarray
+    '''
+    mod = SourceModule("""
+        __global__ void distance(float *distance, float *train, float *test)
+        {
+            int tid = threadIdx.x + blockDim.x * threadIdx.y;
+            distance[tid] = (train[tid] - test[tid]) * (train[tid] - test[tid]);
+        }
+    """ 
+    )
+
+    calculate_distance = mod.get_function("distance")
+    
+    # remember to type-cast the array to be in float32 so that C can calculate
+    train = train.astype(np.float32)
+    test = test.astype(np.float32)
+
+
+    # initialize an ndarray as the output dsetination
+    distance = np.empty(attribute_number, dtype=np.float32)
+    
+    calculate_distance(
+        cuda.Out(distance), cuda.In(train), cuda.In(test),
+        block=(7,2,1), grid=(1,1,1)
+    )
+    
+    # do sum and sqrt on the output vector(ndarray)
+    dist = sqrt(np.sum(distance))
+    return dist
 
 class kNN():
 
@@ -22,20 +61,18 @@ class kNN():
     def predict(self, X_test_list):
         # calculate the distances
         predictions = []
+
         # for every test point in 9767 of test_list
         for test in X_test_list:
             # a distances array for every test point
             distances = []
+
+
             # for every train point in the train list of about 39073
             for train in X_train_list:
-                squared_dist = 0
-
-                
-                # for each attribute in 14 attributes
-                for attr_idx in range(X_train_list.shape[1]):
-                    squared_dist += np.square(test[attr_idx]-train[attr_idx])
-                dist = sqrt(squared_dist)
+                dist = euclidean_distances(train, test)
                 distances.append(dist)
+
 
             # now we have the distances list from this specific test point to each train point in inserted order
             sorted_index = np.argsort(distances)
