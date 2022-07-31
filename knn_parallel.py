@@ -39,7 +39,7 @@ def euclidean_distances(train, test):
 
 
     # initialize an ndarray as the output dsetination
-    distance = np.empty(attribute_number, dtype=np.float32)
+    distance = np.zeros(attribute_number, dtype=np.float32)
     
     calculate_distance(
         cuda.Out(distance), cuda.In(train), cuda.In(test),
