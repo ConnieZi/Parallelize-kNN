@@ -28,7 +28,7 @@ def euclidean_distances(train, test):
 
 
     # initialize an ndarray as the output destination
-    distance = np.empty(14, dtype=np.float32)
+    distance = np.zeros(14, dtype=np.float32)
     calculate_distance(
         cuda.Out(distance), cuda.In(train), cuda.In(test),
         block=(7,2,1), grid=(1,1,1)
@@ -41,10 +41,10 @@ def euclidean_distances(train, test):
     return dist
 
 
-train = np.random.randint(4, size=14)
-test = np.random.randint(4, size=14)
+train = np.random.randn(14).astype('float32')
+test = np.random.randn(14).astype('float32')
 
-print(f'test array: {train}')
+print(f'train array: {train}')
 print(f'test array: {test}')
 
 dist = euclidean_distances(train, test)
